@@ -19,16 +19,16 @@ public:
     void printAdjList() const {
         cout << "Adjacency List with Weights:" << endl;
         for (auto i : adj) {
-            cout << i.first << " -> ";
+            cout << i.first << "-> ";
             for (auto j : i.second) {
-                cout << "(" << j.first << ", " << j.second << ") ";
+                cout << "(" << j.first << "," << j.second << ") ";
             }
             cout << endl;
         }
     }
 
     // Depth First Search (DFS) for topological sorting
-    void dfs(int node, unordered_map<int, bool>& visited, stack<int>& s) {
+    void dfs(int node, unordered_map<int, bool> &visited, stack<int> &s) {
         visited[node] = true;
         for (auto neighbour : adj[node]) {
             if (!visited[neighbour.first]) {
@@ -39,13 +39,13 @@ public:
     }
 
     // Get shortest paths from the source node
-    void shortestPath(int src, stack<int>& s, vector<int>& ans) {
+    void shortestPath(int src, stack<int> &s, vector<int> &ans) {
         ans[src] = 0; // Set the source distance to 0
 
         while (!s.empty()) {
             int top = s.top();
             s.pop();
-            if (ans[top] != INT_MAX) { // Only process if this node has been reached
+            if (ans[top] != INT_MAX) {
                 for (auto i : adj[top]) {
                     if (ans[top] + i.second < ans[i.first]) {
                         ans[i.first] = ans[top] + i.second; // Update the distance
@@ -85,26 +85,19 @@ int main() {
 
     // Display topologically sorted order
     cout << "Topological Sort: ";
-    stack<int> temp = s; // Create a temporary stack to display the topological order
-    while (!temp.empty()) {
-        cout << temp.top() << " ";
-        temp.pop();
-    }
-    cout << endl;
 
-    int src, dest;
+
+    int src,dest;
     cout << "Enter source and destination vertices for shortest path: ";
-    cin >> src >> dest;
+    cin >> src;
+    cin>>dest;
 
-    vector<int> ans(vertices, INT_MAX);
+    vector<int> ans(vertices+1, INT_MAX);
     graph.shortestPath(src, s, ans);
 
-    // Output the shortest distance
-    if (ans[dest] == INT_MAX) {
-        cout << "There is no path from vertex " << src << " to vertex " << dest << "." << endl;
-    } else {
-        cout << "Shortest distance from vertex " << src << " to " << dest << " is " << ans[dest] << endl;
-    }
+    cout << "Shortest distance from vertex " << src<<"to "<<dest<<"is: "<<ans[dest];
+     
+    cout << endl;
 
     return 0;
 }
