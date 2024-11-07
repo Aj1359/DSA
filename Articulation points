@@ -1,67 +1,103 @@
-
 #include <iostream>
-#include<list>
-#include<vector>
-#include<unordered_map>
+#include <list>
+#include <vector>
+#include <unordered_map>
 using namespace std;
-void dfs(int node,int parent, unordered_map<int,bool> &visited,unordered_map<int,list<int>> &adj,vector<int> &disc,vector<int> &low,int &timer,vector<int> &result){
-    
-    visited[node]=true;
-    int child=0;
-    low[node-1]=disc[node-1]=timer++;
-    for(auto nbr:adj[node]){
-        if(nbr==parent){
-            continue;
-        }
-        if(!visited[nbr]){
-             child++;
-            dfs(nbr,node,visited,adj,disc,low,timer,result);
-            low[node-1]=min(low[node-1],low[nbr-1]);
-            if(disc[node-1]<=low[nbr-1] && parent!=-1){
-                result.push_back(node);
-            }
-            
-        }else{
-            low[node-1]=min(low[node-1],disc[nbr-1]);
-        }
-    }
-    if(parent==-1 && child>1){
-        result.push_back(node);
-    }
-}
 
+class Graph {
+private:
+    int n;
+    vector<int> disc;
+    vector<int> low;
+    vector<int> result;  // To store articulation points
+    unordered_map<int, list<int>> adj;
+    unordered_map<int, bool> visited;
+    int timer;
+
+    // DFS function to find articulation points
+    void dfs(int node, int parent) {
+        visited[node] = true;
+        int child = 0;
+        low[node] = disc[node] = timer++;  // Initialize discovery and low time
+
+        // Explore all neighbors
+        for (auto nbr : adj[node]) {
+            if (nbr == parent) {
+                continue;  // Skip the edge back to the parent
+            }
+
+            if (!visited[nbr]) {
+                child++;
+                dfs(nbr, node);  // Recursively visit the neighbor
+                low[node] = min(low[node], low[nbr]);  // Update the low-link value
+
+                // Check if the current node is an articulation point
+                if (parent != -1 && disc[node] <= low[nbr]) {
+                    result.push_back(node);
+                }
+
+            } else {
+                // Update the low-link value if the neighbor is already visited
+                low[node] = min(low[node], disc[nbr]);
+            }
+        }
+
+        // Special case: If the node is the root of the DFS tree and has more than one child
+        if (parent == -1 && child > 1) {
+            result.push_back(node);
+        }
+    }
+
+public:
+    // Constructor to initialize the graph
+    Graph(int n) {
+        this->n = n;
+        disc.resize(n + 1, -1);  // Resize for 1-based indexing
+        low.resize(n + 1, -1);
+        timer = 0;
+    }
+
+    // Function to add an edge to the graph
+    void addEdge(int u, int v) {
+        adj[u].push_back(v);
+        adj[v].push_back(u);  // Undirected graph
+    }
+
+    // Function to find and return all articulation points
+    vector<int> findCutVertices() {
+        for (int i = 1; i <= n; i++) {
+            if (!visited[i]) {
+                dfs(i, -1);  // Call DFS starting from node `i`
+            }
+        }
+        return result;  // Return the articulation points
+    }
+};
 
 int main() {
-   int n=5;
-   vector<pair<int,int>> edges={{1,2},{2,3},{1,3},{1,4},{4,5}};
-   unordered_map<int,list<int>> adj;
-   for(int i=0;i<edges.size();i++){
-       int u=edges[i].first;
-       int v=edges[i].second;
-       adj[u].push_back(v);
-       adj[v].push_back(u);
-   }
-   //create data structures
-   int timer=0;
-   unordered_map<int,bool> visited;
-   vector<int> disc(n);
-   vector<int> low(n);
-   for(int i=0;i<n;i++){
-       disc[i]=-1;
-       low[i]=-1;
-   }
-   vector<int> result;
-   int src=1;
-   int parent=-1;
-   for(int i=1;i<=n;i++){
-       if(!visited[i]){
-           dfs(i,parent,visited,adj,disc,low,timer,result);
-       }
-   }
-     cout << "Bridges in the graph:\n";
-    for (const auto i : result) {
-        cout << i << endl;
+    int n, m;
+    cout << "Enter number of nodes and edges: ";
+    cin >> n >> m;
+
+    Graph g(n);  // Create a graph with n nodes
+
+    cout << "Enter edges (u, v):" << endl;
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        cin >> u >> v;
+        g.addEdge(u, v);
     }
-   
-   return 0;
+
+    vector<int> result = g.findCutVertices();  // Find articulation points
+
+    if (result.empty()) {
+        cout << "None\n";
+    } else {
+        cout << "Articulation points in the graph:\n";
+        for (int i : result) {
+            cout << i << endl;
+        }
+    }
+
+    return 0;
 }
