@@ -8,35 +8,31 @@ class Graph {
 private:
     int n;  // Number of nodes
     unordered_map<int, list<int>> adj;  // Adjacency list
-    vector<int> disc;  // Discovery times of visited vertices
-    vector<int> low;   // Earliest visited vertex reachable from subtree
-    vector<vector<int>> result;  // To store bridges
+    vector<int> disc;  
+    vector<int> low;   
+    vector<vector<int>> result;  
     int timer;
 
-    // Helper function to perform DFS
+
     void dfs(int node, int parent, unordered_map<int, bool> &visited) {
         visited[node] = true;
-        disc[node] = low[node] = timer++;  // Initialize discovery time and low value
-
-        // Explore all neighbors
+        disc[node] = low[node] = timer++; 
         for (auto nbr : adj[node]) {
             if (nbr == parent) {
-                continue;  // Skip the edge leading back to the parent
+                continue;  
             }
 
             if (!visited[nbr]) {
-                // Recursively call DFS
+    
                 dfs(nbr, node, visited);
 
-                // Update the low-link value of the current node based on the child's value
+                /
                 low[node] = min(low[node], low[nbr]);
 
-                // Check if the current edge is a bridge
                 if (disc[node] < low[nbr]) {
                     result.push_back({node, nbr});
                 }
             } else {
-                // If the neighbor is already visited, update the low-link value
                 low[node] = min(low[node], disc[nbr]);
             }
         }
@@ -54,21 +50,17 @@ public:
     // Function to add an edge to the graph
     void addEdge(int u, int v) {
         adj[u].push_back(v);
-        adj[v].push_back(u);  // Assuming an undirected graph
-    }
-
-    // Function to find and return all bridges in the graph
+        adj[v].push_back(u);  
     vector<vector<int>> findBridges() {
         unordered_map<int, bool> visited;
         
-        // Perform DFS for each component
         for (int i = 1; i <= n; i++) {
             if (!visited[i]) {
                 dfs(i, -1, visited);
             }
         }
 
-        return result;  // Return the list of bridges
+        return result; 
     }
 };
 
@@ -88,11 +80,13 @@ int main() {
 
     // Find and output the bridges
     vector<vector<int>> bridges = g.findBridges();
-
+    if(bridges.size()==0){
+        cout<<"none";
+    }else{
     cout << "Bridges in the graph:" << endl;
     for (const auto &bridge : bridges) {
         cout << bridge[0] << " -- " << bridge[1] << endl;
-    }
+    }}
 
     return 0;
 }
