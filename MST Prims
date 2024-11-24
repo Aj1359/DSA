@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+void primMst(vector<list<pair<int, int>>> &adj) {
+    int n = adj.size(); // Number of vertices in the graph
+    vector<int> key(n, INT_MAX); 
+    vector<bool> mst(n, false);  
+    vector<int> parent(n, -1);   
+
+    key[0] = 0; 
+    parent[0] = -1; 
+
+    for (int i = 0; i < n - 1; i++) {
+        
+        int u = -1, mini = INT_MAX;
+        for (int j = 0; j < n; j++) {
+            if (!mst[j] && key[j] < mini) {
+                mini = key[j];
+                u = j;
+            }
+        }
+
+        mst[u] = true; 
+        for (auto nbr : adj[u]) {
+            int v = nbr.first;
+            int w = nbr.second;
+            if (!mst[v] && w < key[v]) {
+                parent[v] = u;
+                key[v] = w;
+            }
+        }
+    }
+
+  
+    vector<pair<pair<int, int>, int>> result;
+    for (int i = 1; i < n; i++) { // Start from 1 as 0 is the root
+        result.push_back({{parent[i], i}, key[i]});
+    }
+
+    // Print the MST
+    cout << "Edge \tWeight\n";
+    for (auto edge : result) {
+        cout << edge.first.first << " - " << edge.first.second << "\t" << edge.second << "\n";
+    }
+}
+
+int main() {
+    int n, m; // Number of vertices and edges
+    cin >> n >> m;
+    vector<list<pair<int, int>>> adj(n);
+
+    // Input graph edges
+    for (int i = 0; i < m; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w}); // Since it's an undirected graph
+    }
+
+  
+    primMst(adj);
+
+    return 0;
+}
